@@ -5,7 +5,7 @@ var bodyParser = require('body-parser')
 const app = express()
 
 // const postAPI = require('./bin/function');
-
+const func = require('./bin/function')
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -22,36 +22,55 @@ app.get('/', (req, res) => {
 //Provide the api for post check
 app.post('/', async function (req, res) {
     var tracecode = req.body.tracecode;
-    var courier = req.body.courier;
+    var inputcourier = req.body.courier;
     var apikey = req.body.apikey;
     
     var tracker = require('./index')
 
     // const tracecode = program.tracecode
+    console.log(courier)
+    var guessCourier = func.courierGuess(tracecode)
+    if (inputcourier && !tracker.COURIER[inputcourier]) {
+    //   console.error('The Company is not supported.')
+      console.log('The Company is not supported.')
+      res.send({'Error_message' : 'The Company is not supported.'})
 
+      // process.exit(1)
+    } else if (!inputcourier && guessCourier !== 'Error') {
+        inputcourier = guessCourier
+      // process.exit(1)
+    } else {
+        console.error('Fail to trace package please enter a correct courier.')
+        res.send({'Error_message' : 'Fail to trace package please enter a correct courier.'})
+        // console.log('Please enter a courier.')
+        return
+      } 
+    
 
-    if (!tracker.COURIER[courier]) {
-      console.error('The Company is not supported.')
-      // process.exit(1)
-    } else if (!tracecode) {
-      console.error('Please enter a tracecode.')
-      // process.exit(1)
-    }
 
     var opts = {}
     if (apikey) {
       opts.apikey = apikey
     }
-
-    var courier = await tracker.courier(tracker.COURIER[courier].CODE, opts)
+    const trackcourier = await tracker.COURIER[inputcourier]
+    var courier 
+    if(trackcourier)
+    {
+        courier = await tracker.courier(trackcourier.CODE, opts)
+    }
+    if (courier)
     await courier.trace(tracecode, function (err, result) {
       if (err) {
-        console.error(err)
-        process.exit(1)
+        // console.error(err)
+        console.log(err)
+
+        // process.exit(1)
       }
+
 
     //   console.log(JSON.stringify(result, null, 2))
     //   return JSON.stringify(result, null, 2)
+    // res.send(JSON.stringify(result, null, 2))
     res.send(JSON.stringify(result, null, 2))
       // process.exit(0)
     }
