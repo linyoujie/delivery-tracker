@@ -33,15 +33,15 @@ app.post('/', async function (req, res) {
     if (inputcourier && !tracker.COURIER[inputcourier]) {
     //   console.error('The Company is not supported.')
       console.log('The Company is not supported.')
-      res.send({'Error_message' : 'The Company is not supported.'})
+      res.send({'code': '404','message' : 'The Company is not supported.'})
 
       // process.exit(1)
     } else if (!inputcourier && guessCourier !== 'Error') {
         inputcourier = guessCourier
       // process.exit(1)
-    } else {
+    } else if (!inputcourier && !guessCourier) {
         console.error('Fail to trace package please enter a correct courier.')
-        res.send({'Error_message' : 'Fail to trace package please enter a correct courier.'})
+        res.send({'code': '403','message' : 'Fail to trace package please enter a correct courier.'})
         // console.log('Please enter a courier.')
         return
       } 
@@ -63,7 +63,10 @@ app.post('/', async function (req, res) {
       if (err) {
         // console.error(err)
         console.log(err)
-
+        if (err.message == 'Unauthorized')
+            res.send({"code" : err.code, "message" : "API called exceed limits, please apply your own API",})
+        else
+            res.send(err)
         // process.exit(1)
       }
 
