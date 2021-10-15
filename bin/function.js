@@ -21,6 +21,7 @@ module.exports = {
       console.error('The Company is not supported.')
       // process.exit(1)
     } else if (!tracecode) {
+
       console.error('Please enter a tracecode.')
       // process.exit(1)
       
@@ -63,13 +64,16 @@ module.exports = {
 
     var matchCAPost = '^[0-9]{16}$|^[A-Z]{2}[0-9]{9}[A-Z]{2}$'
 
+    var matchRoyalmail = '^[A-Za-z]{2}[0-9]{9}[Gg][Bb]$'
+
+
     const upsRegrex = new RegExp( matchUPS1 + '|' + matchUPS2);
     // const userIDRegex = new RegExp('^[1-9]');
     const uspsRegex = new RegExp(matchUSPS1);
     const fedexRegex = new RegExp(matchFedex1);
     const dhlRegex = new RegExp(matchDHL);
     const capostRegex = new RegExp(matchCAPost);
-
+    const royalmail = new RegExp(matchRoyalmail);
 
     // console.log(tracecode)
     if (upsRegrex.test(tracecode)) {
@@ -84,7 +88,9 @@ module.exports = {
     else if (dhlRegex.test(tracecode)) {
       return "DHL"
     }
-
+    else if (royalmail.test(tracecode)) {
+      return "ROYALMAIL"
+    }
 
     else {
       // console.log(fedexRegex.test('283090198425'))
